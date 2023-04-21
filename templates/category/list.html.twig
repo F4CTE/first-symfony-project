@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CategoryController!{% endblock %}
+
+{% block body %}
+	<h1>Catégories</h1>
+
+	<ul style='text-align:left;'>
+		{% for category in categories %}
+			<li>
+				<a href= "{{path('show_category',{id: category.id})}}" >
+				{{ category.name }}
+				</a>
+				<br>
+				-
+				{{ category.posts|length }}
+				-
+				posts
+			</li>
+			<br>
+		{% endfor %}
+	</ul>
+{% endblock %}
