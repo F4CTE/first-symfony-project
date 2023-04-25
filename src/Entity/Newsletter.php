@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NewsletterRepository::class)]
 #[UniqueEntity('email', message: "L'email {{ value }} est déjà inscrit à la newsletter.")]
+#[UniqueEntity('authToken', message: "L'authToken {{ value }} est déjà utilisé.")]
 class Newsletter
 {
     #[ORM\Id]
@@ -20,6 +21,12 @@ class Newsletter
     #[Assert\Email(message: "L'email {{ value }} n'est pas valide.")]
     #[Assert\NotBlank(message: "L'email est obligatoire.")]
     private ?string $email = null;
+
+    #[ORM\Column(length: 255, nullable: true, unique:true)]
+    private ?string $authToken = null;
+
+    #[ORM\Column]
+    private ?bool $isActif = false;
 
     public function getId(): ?int
     {
@@ -35,6 +42,36 @@ class Newsletter
     {
         $this->email = $email;
 
+        return $this;
+    }
+
+    public function getAuthToken(): ?string
+    {
+        return $this->authToken;
+    }
+
+    public function setAuthToken(?string $authToken): self
+    {
+        $this->authToken = $authToken;
+
+        return $this;
+    }
+
+    public function isIsActif(): ?bool
+    {
+        return $this->isActif;
+    }
+
+    public function setIsActif(bool $isActif): self
+    {
+        $this->isActif = $isActif;
+
+        return $this;
+    }
+
+    public function generateToken(): self
+    {
+        $this->authToken = bin2hex(random_bytes(32));
         return $this;
     }
 }
