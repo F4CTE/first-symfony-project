@@ -9,16 +9,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\String\ByteString;
+use App\Mail\Newsletter\SubscribedConfirmation;
 
 class NewsletterController extends AbstractController
 {
     #[Route('/newsletter/subscribe', name: 'newsletter_subscribe')]
-    public function subscribe(Request $request, NewsletterRepository $newsletterRepository, MailerInterface $mailer): Response
+    public function subscribe(Request $request, NewsletterRepository $newsletterRepository, SubscribedConfirmation $subscribedConfirmation): Response
     {
         $newsletter = new Newsletter();
         $form = $this->createForm(NewsletterType::class, $newsletter);
@@ -26,15 +24,8 @@ class NewsletterController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $newsletter->setAuthToken(ByteString::fromRandom(32)->toString());
-            $email = (new Email())
-                ->from('no-reply@symfony.com')
-                ->to($newsletter->getEmail())
-                ->subject('please confirm your newsletter subscription')
-                ->text($this->generateUrl('newsletter_confirm', [
-                    'token' => $newsletter->getAuthToken(),
-                ], UrlGeneratorInterface::ABSOLUTE_URL));
             $newsletterRepository->save($newsletter, true);
-            $mailer->send($email);
+            $subscribedConfirmation->sendTo($newsletter);
             $this->addFlash('success', 'Votre demande \'inscription a bien été prise en compte. veuillez la confirmer en cliquant sur le lien reçu.');
             return $this->redirectToRoute('app_index');
         }
