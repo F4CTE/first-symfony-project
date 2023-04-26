@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\NewsletterRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\String\ByteString;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NewsletterRepository::class)]
@@ -71,7 +72,7 @@ class Newsletter
 
     public function generateToken(): self
     {
-        $this->authToken = bin2hex(random_bytes(32));
+        $this->authToken = ByteString::fromRandom(32)->toString();
         return $this;
     }
 }
