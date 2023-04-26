@@ -5,12 +5,11 @@ namespace App\Entity;
 use App\Repository\NewsletterRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\String\ByteString;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: NewsletterRepository::class)]
 #[UniqueEntity('email', message: "L'email {{ value }} est déjà inscrit à la newsletter.")]
-#[UniqueEntity('authToken', message: "L'authToken {{ value }} est déjà utilisé.")]
+#[UniqueEntity('authToken', message: "Le Token {{ value }} est déjà utilisé.")]
 class Newsletter
 {
     #[ORM\Id]
@@ -18,12 +17,12 @@ class Newsletter
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255,unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Assert\Email(message: "L'email {{ value }} n'est pas valide.")]
     #[Assert\NotBlank(message: "L'email est obligatoire.")]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255, nullable: true, unique:true)]
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
     private ?string $authToken = null;
 
     #[ORM\Column]
@@ -67,12 +66,6 @@ class Newsletter
     {
         $this->isActif = $isActif;
 
-        return $this;
-    }
-
-    public function generateToken(): self
-    {
-        $this->authToken = ByteString::fromRandom(32)->toString();
         return $this;
     }
 }
