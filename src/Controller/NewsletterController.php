@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Newsletter;
-use App\Event\NewsletterSubscribedevent;
+use App\Event\NewsletterSubscribedEvent;
 use App\Form\NewsletterType;
 use App\Repository\NewsletterRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,12 +23,12 @@ class NewsletterController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
+
             $newsletterRepository->save($newsletter, true);
 
-            $event = new NewsletterSubscribedevent($newsletter);
+            $event = new NewsletterSubscribedEvent($newsletter);
 
-            $dispatcher->dispatch($event, NewsletterSubscribedevent::NAME);
+            $dispatcher->dispatch($event, NewsletterSubscribedEvent::NAME);
 
             $this->addFlash('success', 'Votre demande \'inscription a bien été prise en compte. veuillez la confirmer en cliquant sur le lien reçu.');
             

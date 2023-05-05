@@ -4,7 +4,7 @@ namespace App\Event;
 
 use App\Entity\Newsletter;
 
-class NewsletterSubscribedevent
+class NewsletterSubscribedEvent
 {
     public const NAME = 'newsletter.subscribed';
 
