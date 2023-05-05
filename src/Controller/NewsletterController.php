@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Newsletter;
+use App\Event\NewsletterSubscribedevent;
 use App\Form\NewsletterType;
 use App\Repository\NewsletterRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -10,23 +11,27 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\String\ByteString;
-use App\Mail\Newsletter\SubscribedConfirmation;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class NewsletterController extends AbstractController
 {
     #[Route('/newsletter/subscribe', name: 'newsletter_subscribe')]
-    public function subscribe(Request $request, NewsletterRepository $newsletterRepository, SubscribedConfirmation $subscribedConfirmation): Response
+    public function subscribe(Request $request, NewsletterRepository $newsletterRepository,EventDispatcherInterface $dispatcher): Response
     {
         $newsletter = new Newsletter();
         $form = $this->createForm(NewsletterType::class, $newsletter);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newsletter->setAuthToken(ByteString::fromRandom(32)->toString());
+            
             $newsletterRepository->save($newsletter, true);
-            $subscribedConfirmation->sendTo($newsletter);
+
+            $event = new NewsletterSubscribedevent($newsletter);
+
+            $dispatcher->dispatch($event, NewsletterSubscribedevent::NAME);
+
             $this->addFlash('success', 'Votre demande \'inscription a bien été prise en compte. veuillez la confirmer en cliquant sur le lien reçu.');
+            
             return $this->redirectToRoute('app_index');
         }
 
